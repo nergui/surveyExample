@@ -1,0 +1,273 @@
+  <!--Purpose:		Survey Engine Design-->
+  <!--Author:		Nergui Badarch-->
+  <!--Date:		06/21/2014-->
+  
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        
+        <script>
+            arrQuestion = new Array();
+            questionAnswer = {};
+             function createSurveyForm(SurveyTable,buttonDiv) {
+                if(arrQuestion.length==0){
+                    alert("Please add to questions");
+                }else {
+                     var countAnswer= 1;
+                     var countQuestion = 1;
+                     document.getElementById("createSurvey").style.display="none";
+                     var table = document.getElementById(SurveyTable);
+                        for (var i in arrQuestion) {
+                             var rowCount = table.rows.length;
+                             var row = table.insertRow(rowCount);
+                             
+                             var cell1 = row.insertCell(0);
+                             cell1.innerHTML = countQuestion+"."+arrQuestion[i].putQuestion();
+                             
+                             
+                             var row1 = table.insertRow(table.rows.length);
+                             var cellAnswers = row1.insertCell(0);
+                             cellAnswers.innerHTML=arrQuestion[i].generate(countAnswer);
+                
+                            countAnswer=countAnswer+2;
+                            countQuestion++;
+                        }
+                            var newdiv = document.createElement('div');
+                            mybutton=document.createElement("BUTTON");
+                            mybutton.onclick=takeSurvey;
+                            newdiv.appendChild(mybutton);
+                            mybutton.style.height=20;
+                            mybutton.style.width=75;
+                            theText=document.createTextNode("I'm done!");
+                            mybutton.appendChild(theText);
+                            document.getElementById(buttonDiv).appendChild(newdiv);
+                }
+             }
+             
+             function createFormAnswer() {
+                 var table = document.getElementById('surveyForm');
+             
+                for (var r = 0;r < table.rows.length; r++) {
+                    if(r%2==1 && table.rows[r].cells[0].childNodes[0].type=='checkbox'){
+                                var inputs = document.getElementsByName("ans"+r);
+                                var checkCheckboxValue="";
+                                for (var i = 0; i < inputs.length; i++) {
+                                  if (inputs[i].checked) {
+                                        checkCheckboxValue=checkCheckboxValue+inputs[i].value+", ";
+                                  }
+                                }
+                                checkCheckboxValue = checkCheckboxValue.slice(0, - 1);                                
+                                 checkCheckboxValue = checkCheckboxValue.slice(0, - 1);
+                              questionAnswer[table.rows[r-1].cells[0].innerText]=checkCheckboxValue;
+                   // alert(table.rows[r-1].cells[0].innerText+"->"+checkCheckboxValue); 
+                    } else if(r%2==1 &&  table.rows[r].cells[0].childNodes[0].type=='text'){
+                       // alert(table.rows[r-1].cells[0].innerText+"->"+document.getElementById("ans"+r).value);
+                        questionAnswer[table.rows[r-1].cells[0].innerText]=document.getElementById("ans"+r).value;
+                     }else if(r%2==1 && table.rows[r].cells[0].childNodes[0].type=='radio'){
+                       
+                                var inputs = document.getElementsByName("ans"+r);
+                                var checkCheckboxValue="";
+                                for (var i = 0; i < inputs.length; i++) {
+                                  if (inputs[i].checked) {
+                                    checkCheckboxValue=inputs[i].value;
+                                  }
+                                }
+                    //alert(table.rows[r-1].cells[0].innerText+"->"+checkCheckboxValue); 
+                     questionAnswer[table.rows[r-1].cells[0].innerText]=checkCheckboxValue; 
+                    }else if(r%2==1){
+                        
+                    var e = document.getElementById("ans"+r);
+                    var selectedOption = e.options[e.selectedIndex].text; 
+                     questionAnswer[table.rows[r-1].cells[0].innerText]=selectedOption; 
+                    // alert(table.rows[r-1].cells[0].innerText+"->"+selectedOption); 
+                     }
+             }
+         }
+            function endSurvey() {
+                document.getElementById("surveyForm").style.display="none";
+                document.getElementById("buttonDiv").style.display="none";
+                
+                var table = document.getElementById('answerForm');
+                var i=0;
+                    var row1 = table.insertRow(table.rows.length);
+                    var cellAnswers = row1.insertCell(0);
+                    cellAnswers.innerHTML="Your answers";
+                for (var key in questionAnswer) {
+                    
+                    
+                    var rowCount = table.rows.length;
+                    var row = table.insertRow(rowCount);
+
+                    var cell1 = row.insertCell(0);
+                    cell1.innerHTML = key;
+
+
+                    var row1 = table.insertRow(table.rows.length);
+                    var cellAnswers = row1.insertCell(0);
+                    cellAnswers.innerHTML=questionAnswer[key];
+                    i++;
+                }
+                     var row1 = table.insertRow(table.rows.length);
+                    var cellAnswers = row1.insertCell(0);
+                    cellAnswers.innerHTML="Thank you for completing survey";
+            }
+                    
+             function takeSurvey() {
+               
+                   if(validateMyForm()){
+                       createFormAnswer();
+                       endSurvey();
+                   }
+                } 
+            
+              function addQuestion(selectedOption) {
+                
+                if(selectedOption==1){           
+                arrQuestion.push( new Question(document.getElementsByName('question')[0].value ));
+               }else if(selectedOption==2){
+                 arrQuestion.push( new QuestionDropdown(document.getElementsByName('question')[0].value ,document.getElementsByName('answer')[0].value));
+               }else if(selectedOption==3){
+                   arrQuestion.push( new QuestionCheckboxButton(document.getElementsByName('question')[0].value ,document.getElementsByName('answer')[0].value));
+               }else if(selectedOption==4){
+                   arrQuestion.push( new QuestionRadioButton(document.getElementsByName('question')[0].value ,document.getElementsByName('answer')[0].value));
+               }
+                document.getElementById("controlType").selectedIndex=0;
+                document.getElementsByName('answer')[0].value="";
+                document.getElementsByName('question')[0].value="";
+                
+            }  
+              function addRow() {
+               var len=window.arrQuestion.length;
+               var selectedanswer=document.getElementById("controlType").selectedIndex;
+               var selectedOption=document.getElementsByTagName("option")[selectedanswer].value;
+            if(question.value.trim()!="" && selectedOption!=0  ){
+                if(selectedOption==1){
+                    addQuestion(selectedOption);
+                    alert("Successfully added to array"); 
+                }else if(selectedOption!=1 && answer.value.trim()!="" ){
+                    addQuestion(selectedOption);
+                    alert("Successfully added to array"); 
+                }else{
+                    alert("please enter value, choose"); 
+                }
+                
+                 
+            }else{
+                 alert("please enter value, choose"); 
+            }
+            
+           }
+           function changeVisiblity(){
+            var conType = document.getElementById("controlType");
+            if(controlType.options[conType.selectedIndex].value!=1){
+                  document.getElementById("valueRow").style.display="";
+            }else{
+                  document.getElementById("valueRow").style.display="none";
+            }
+          }
+          function validateMyForm()
+        {
+           var valid = true;
+	        var validationMessage = 'Please fill in all fields';
+                var table = document.getElementById('surveyForm');
+             
+                for (var r = 0;r < table.rows.length; r++) {
+                    if(r%2==1 &&  table.rows[r].cells[0].childNodes[0].type=='text' ){
+                       if (document.getElementById("ans"+r).value.length == 0 || document.getElementById("ans"+r).value.trim()== "")
+                        {
+                            valid = false;
+                        } 
+                    }else if(r%2==1 && table.rows[r].cells[0].childNodes[0].type=='radio'){
+                          var inputs = document.getElementsByName("ans"+r);
+                                var checkCheckboxValue="";
+                                for (var i = 0; i < inputs.length; i++) {
+                                  if (inputs[i].checked) {
+                                    checkCheckboxValue=inputs[i].value;
+                                  }
+                                }
+                                if(checkCheckboxValue.trim()==""){
+                                    valid = false; 
+                                }
+                    }else if(r%2==1 && table.rows[r].cells[0].childNodes[0].type=='checkbox'){
+                          var inputs = document.getElementsByName("ans"+r);
+                                var checkCheckboxValue="";
+                                for (var i = 0; i < inputs.length; i++) {
+                                  if (inputs[i].checked) {
+                                    checkCheckboxValue=inputs[i].value;
+                                  }
+                                }
+                               
+                                if(checkCheckboxValue.trim()==""){
+                                    valid = false; 
+                                }
+                    }
+                
+                }
+                if (valid == false)
+                {
+                    alert(validationMessage);
+                }
+                
+	        return valid;
+	}
+          function help(){
+           alert("Welcome to the My Survey Help.\n\n Please fill in and click 'added question' button, if you want to add a question to our survey,. \n Please click 'Create survey form' button, if you want to take the survey.  \n If you want to see result of survey, you need to fill in our survey form and click 'I'm done' button.\n Note: Please put options in Value textfield by separate comma if you want to add a question to our survey. \n\n Thank you for visiting our survey.");
+          }
+          
+        </script>
+        <script src="MyJavaScript.js" type="text/javascript"></script>
+        <table id="createSurvey" class="">
+             <tr>
+                <td>  <button type="button" onClick="help()">Help</button></td>
+           
+            </tr>
+            <tr>
+                <td>
+                  Type:
+                </td>
+                <td>
+              <select id="controlType" onChange="changeVisiblity()">
+                    <option value="0" selected="selected">Select</option>
+                    <option value="1">Text input</option>
+                    <option value="2" >Drop down</option>
+                    <option value="3">Check box</option>
+                     <option value="4">Radio button</option>
+                </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                   Question:
+                </td>
+                <td>
+                    <input type="text" name="question" id="question" >
+                </td>
+            </tr>
+            <tr style="display: none" id="valueRow">
+                <td>
+                   Value:
+                </td>
+                <td>
+                    <input type="text" name="answer"  id="answer">
+                </td>
+            </tr>
+            <tr>
+                <td>  <button type="button" onClick="addRow()">Add question</button></td>
+                <td>  <button type="button" onClick="createSurveyForm('surveyForm','buttonDiv')">Create survey form</button></td>
+            </tr>
+           
+
+        </table>
+        <table id="surveyForm" >
+            
+        </table>
+        <div id="buttonDiv"></div>
+        <table id="answerForm" >
+            
+        </table>
+    </body>
+</html>
